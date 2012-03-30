@@ -1,0 +1,18 @@
+!!! 5
+html
+  head
+    meta(charset='utf-8')
+
+    title= typeof(title) == 'undefined' ? 'Glossary' : title
+    meta(name='description', content='Glossary Online')
+    meta(name='author', content='Danny Gräf')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+
+    link(rel='stylesheet', href='/css/screen.css')
+    block styles
+
+    script(src='/nowjs/now.js')
+    block scripts
+
+  body
+    block content
