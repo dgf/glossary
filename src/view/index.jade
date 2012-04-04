@@ -1,37 +1,42 @@
 extends layout
 
 block styles
+  link(rel='stylesheet', href='/css/bootstrap.css')
   != css('glossary')
+  link(rel='stylesheet', href='/css/bootstrap-responsive.css')
 
 block scripts
   script(src='/js/jquery.js')
+  script(src='/js/bootstrap-scrollspy.js')
+  script(src='/js/bootstrap-collapse.js')
   script(src='/js/knockout.js')
   script(src='/js/knockout.mapping.js')
   != js('glossary')
 
 block content
-  #page.container(style='display: none')
-
-    header.span-24.last
-      h1 #{title}
-      button(type='button', data-bind='click: create') Create a term
-
-    .span-4 &nbsp;
-
-    nav.span-1
-      ul(data-bind='foreach: letters, visible: letters().length > 0')
+  body(style='display: none', data-spy='scroll', data-bind='visible: terms().length > 0')
+    .navbar.navbar-fixed-top.navbar-inner.container-fluid
+      a.btn.btn-navbar(data-target='.nav-collapse', data-toggle='collapse')
+        span.icon-bar
+        span.icon-bar
+        span.icon-bar
+      a.brand(href='#') #{title}
+      ul.nav.nav-collapse(data-bind='visible: letters().length > 0')
+        li
+          a(href='#', data-bind='click: create') Create a term
+        // ko foreach: letters
         li
           a(data-bind='text: letter, attr: { href: url, title: title }')
+        // /ko
 
-    #content.span-15.last
-      dl(data-bind='foreach: terms, visible: terms().length > 0')
-        dt(data-bind='attr: { id: title }, css: { blocked: isBlocked(), editing: editing() }')
+    .container(data-bind='foreach: terms')
+      section(data-bind='attr: { id: title }')
+        .well(data-bind='css: { blocked: isBlocked(), editing: editing() }')
+          div(data-bind='visible: !editing()')
+            small(data-bind='text: updated')
+            button(class='btn', type='button', data-bind='click: $parent.delete, visible: !isBlocked()') Delete
           h2(data-bind='text: title, visible: !editingTitle(), click: editTitle')
           input(data-bind='value: title, valueUpdate: "afterkeydown", visible: editingTitle(), hasfocus: editingTitle')
-          div(data-bind='visible: !editing()')
-            button(type='button', data-bind='click: $parent.delete, visible: !isBlocked()') Delete
-            span(data-bind='text: updated')
-        dd(data-bind='css: { blocked: isBlocked(), editing: editing() }')
           p(data-bind='html: definition, visible: !editingDefinition(), click: editDefinition')
           textarea(data-bind='value: definition, valueUpdate: "afterkeydown", visible: editingDefinition(), hasfocus: editingDefinition')
-        hr
+

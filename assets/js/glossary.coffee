@@ -98,17 +98,25 @@ jQuery ($) ->
     add: glossary.addTerm
     remove: glossary.removeTerm
     update: glossary.updateTerm
-    letters: glossary.setLetters
+    letters: (letters) ->
+      glossary.setLetters letters
+      $('body').scrollspy 'refresh'
 
   # startup
   now.ready ->
     console.log 'now ready'
+    initView = ->
+      now.glossary.terms (terms) ->
+        glossary.setTerms terms
+        now.glossary.letters (letters) ->
+          glossary.setLetters letters
+          $('body').show().scrollspy 'refresh'
     switch socketStatus
       when 'connected', null
         console.log 'startup'
         ko.applyBindings glossary
-        now.glossary.terms glossary.setTerms
-        now.glossary.letters glossary.setLetters
-        $('#page').show()
-      when 'reconnected' then showError 'reconnected'
+        initView()
+      when 'reconnected'
+        console.log 'reconnected'
+        initView()
       else showError 'unknow socket connection status: ' + socketStatus

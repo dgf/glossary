@@ -1,65 +1,28 @@
-@import 'nib'
+section
+  padding-top 50px
+  max-width 950px
 
-.container
-  margin-top 2em
-
-header
-  background-color white
-  border 3px solid lightblue
-  border-radius 1em
-  padding 0.2em 0.5em
-  text-align center
-
-#content
-  padding-top 1.5em
-
-h1, h2
-  display inline
-
-// term editing
-.blocked
-  background-color red
-
-.editing
-  background-color yellow
-
-// term title
-dt div
+section > div > div
   float right
+  text-align right
+  width 30%
 
-dt input
-  font-size 2em
+section > div > div > button
+  margin-left .5em
+
+section > div > input
+  font-size 24px
+  font-weight bold
+  height 36px
+  line-height 36px
   width 70%
 
-
-// term definition
-dd
-  margin 0
-
-dd p
-  font-size 1.2em
-
-dd textarea
-  width 47em
+section > div > textarea
   height 5em
+  width 90%
 
-// letter list
-nav
-  padding-top 2em
+.blocked
+  background-color #F2DEDE
 
-nav ul
-  list-style none
-  margin 0
-  padding 0
-
-nav ul li
-  text-align center
-  width 2em
-  height 2em
-  border 1px solid black
-  border-radius 1em
-  line-height 2em
-  background-color lightblue
-
-nav ul li + li
-  margin-top 0.3em
+.editing
+  background-color #D9EDF7

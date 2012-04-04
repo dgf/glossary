@@ -17,6 +17,8 @@ module.exports = (express, everyone, db) ->
 
   termCrudl = crudl db.Term, tie, detach
 
+  updateLetters = -> db.Term.letters everyone.now.client.letters, (error) -> throw error
+
   everyone.now.glossary =
     terms: termCrudl.list
 
@@ -26,19 +28,21 @@ module.exports = (express, everyone, db) ->
         everyone.now.client.update _.extend values,
           id: term.id
           updated: term.updated
-        db.Term.letters everyone.now.client.letters, (error) -> throw error
+        updateLetters()
       termCrudl.update.apply @, [id, values, publishUpdatedTerm]
 
     add: (values, onSuccess) ->
       publishNewTerm = (msg, term) ->
         onSuccess msg
         everyone.now.client.add term
+        updateLetters()
       termCrudl.create.apply @, [values, publishNewTerm]
 
     remove: (id, onSuccess) ->
       publishDeletedTerm = (msg) ->
         onSuccess msg
         everyone.now.client.remove id
+        updateLetters()
       termCrudl.delete.apply @, [id, publishDeletedTerm]
 
     letters: (onSuccess) ->
