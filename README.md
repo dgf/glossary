@@ -13,5 +13,4 @@ that supports a simple collaborative term management
     cake setup
     npm start
 
-go to [http://localhost:3000/](http://localhost:3000/) and
-run Selenium with crudleTest.html if you like
+go to [http://localhost:3000/](http://localhost:3000/)
