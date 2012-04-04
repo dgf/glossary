@@ -4,36 +4,41 @@ _ = require 'underscore'
 # glossary interface
 module.exports = (express, everyone, db) ->
 
-  express.get '/', (req, resp) -> resp.render 'index', title: 'Startseite'
+  tie = (term) ->
+    t = isBlocked: term.isBlocked
+    t.title = term.title if term.title
+    t.definition = term.definition if term.definition
+    t
 
-  map = (term) ->
-    title: term.title
-    definition: term.definition
-    isDone: term.isDone
+  detach = (term) ->
+    _.extend tie(term),
+      id: term.id
+      updated: term.updatedAt
 
-  termCrudl = crudl db.Term, map, (term) -> _.extend map(term), id: term.id
+  termCrudl = crudl db.Term, tie, detach
 
   everyone.now.glossary =
     terms: termCrudl.list
 
-    save: (values, onSuccess) ->
+    save: (id, values, onSuccess) ->
       publishUpdatedTerm = (msg, term) ->
         onSuccess msg
-        everyone.now.client.updateTerm term
-      termCrudl.update.apply @, [values.id, values, publishUpdatedTerm]
+        everyone.now.client.update _.extend values,
+          id: term.id
+          updated: term.updated
+      termCrudl.update.apply @, [id, values, publishUpdatedTerm]
 
     add: (values, onSuccess) ->
       publishNewTerm = (msg, term) ->
         onSuccess msg
-        everyone.now.client.addTerm term
+        everyone.now.client.add term
       termCrudl.create.apply @, [values, publishNewTerm]
 
     remove: (id, onSuccess) ->
       publishDeletedTerm = (msg) ->
         onSuccess msg
-        everyone.now.client.removeTerm id
+        everyone.now.client.remove id
       termCrudl.delete.apply @, [id, publishDeletedTerm]
 
     letters: (onSuccess) ->
       db.Term.letters onSuccess, (error) -> throw error
-

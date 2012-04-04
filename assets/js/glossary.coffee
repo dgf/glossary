@@ -5,66 +5,111 @@ showError = (msg) -> alert msg
 class Glossary
 
   constructor: ->
-    @terms = ko.observableArray([])
     @termsById = {}
+    @terms = ko.observableArray([])
     @letters = ko.observableArray([])
 
-    @newTermTitle = ko.observable()
-    @newTermDefinition = ko.observable()
-    @chosenTermData = ko.observable()
+  sortTerms = (l, r) -> l.title().localeCompare r.title()
 
-    @incompleteTerms = ko.computed =>
-      ko.utils.arrayFilter @terms(), (term) -> not term.isDone()
+  saveTerm = (id, change) -> now.glossary.save id, change, (msg) -> console.log msg
 
-    @addTermData = (term) =>
-      t = ko.mapping.fromJS term
-      @termsById[term.id] = t
-      @terms.push t
+  addChangeListener = (term) ->
+    term.editingTitle = ko.observable false
+    term.editingDefinition = ko.observable false
+    term.editing = ko.computed -> term.editingTitle() or term.editingDefinition()
 
-    @updateTermData = (values) =>
-      ko.mapping.fromJS values, @termsById[values.id]
+    term.editTitle = -> term.editingTitle true unless term.isBlocked()
+    term.title.subscribe ->
+      if term.editingTitle()
+        console.log 'publish term title change: ' + term.id()
+        saveTerm term.id(), title: term.title()
 
-    @removeTermData = (id) =>
-      @terms.remove @termsById[id]
-      delete @termsById[id]
+    term.editDefinition = -> term.editingDefinition true unless term.isBlocked()
+    term.definition.subscribe ->
+      if term.editingDefinition()
+        console.log 'publish term definition change: ' + term.id()
+        saveTerm term.id(), definition: term.definition()
+    term
 
-  setLetters: (letters) => @letters.push letter for letter in letters
-  setTerms: (terms) => @addTermData term for term in terms
-  editTerm: (term) => @chosenTermData term
+  addTermData: (values) =>
+    console.log 'add term: ' + values.id
+    term = addChangeListener ko.mapping.fromJS values
+    term.editing.subscribe (edit) -> saveTerm term.id(), isBlocked: edit
+    @termsById[values.id] = term
+    @terms.push term
 
-  addTerm: =>
+  # ----------------------------------------------- client interface
+  addTerm: (values) =>
+    @addTermData values
+    @terms.sort sortTerms
+
+  removeTerm: (id) =>
+    console.log 'remove term: ' + id
+    @terms.remove @termsById[id]
+    delete @termsById[id]
+
+  updateTerm: (values) =>
+    console.log 'update term: ' + values.id
+    term = @termsById[values.id]
+    unless term.editing()
+      ko.mapping.fromJS values, term
+      @terms.sort sortTerms
+
+  setTerms: (terms) =>
+    @addTermData term for term in terms
+    @terms.sort sortTerms
+
+  setLetters: (letters) =>
+    console.log 'set letters: ' + letters.join ', '
+    @letters.removeAll()
+    for letter in letters
+      letter.url = '#' + letter.title
+      @letters.push letter
+
+  # ----------------------------------------------- binding interactions
+  delete: (term) ->
+    console.log 'delete term: ' + term.id()
+    now.glossary.remove term.id(), (msg) -> console.log msg
+
+  create: ->
+    console.log 'create term'
     values =
-      title: @newTermTitle()
-      definition: @newTermDefinition()
-      isDone: false
+      title: 'A new term'
+      definition: 'with a definition'
+      isNew: true
+    now.glossary.add values, (msg) => console.log msg
 
-    now.glossary.add values, (msg) =>
-      console.log msg
-      @newTermTitle ''
-      @newTermDefinition ''
+jQuery ($) ->
+  console.log '$ ready'
 
-  saveTerm: =>
-    values = ko.mapping.toJS @chosenTermData()
-    now.glossary.save values, (msg) ->
-      console.log msg
-
-  removeTerm: (term) =>
-    now.glossary.remove term.id(), (msg) ->
-      console.log msg
-
-# startup
-now.ready ->
+  # connection flow
+  socketStatus = null
+  now.core.on 'connect', -> socketStatus = 'connected' if not socketStatus
+  now.core.on 'reconnect', -> socketStatus = 'reconnected'
+  now.core.on 'disconnect', -> showError 'disconnect from server'
+  now.core.on 'connect_failed', -> showError 'socket connect failed'
+  now.core.on 'reconnect_failed', -> showError 'reconnect try failed'
 
   # initialize glossary
   glossary = new Glossary
-  ko.applyBindings glossary
-  now.glossary.terms glossary.setTerms
-  now.glossary.letters glossary.setLetters
 
   # register client handler
   now.client =
     alert: showError
-    addTerm: glossary.addTermData
-    removeTerm: glossary.removeTermData
-    updateTerm: glossary.updateTermData
+    add: glossary.addTerm
+    remove: glossary.removeTerm
+    update: glossary.updateTerm
+    letters: glossary.setLetters
 
+  # startup
+  now.ready ->
+    console.log 'now ready'
+    switch socketStatus
+      when 'connected', null
+        console.log 'startup'
+        ko.applyBindings glossary
+        now.glossary.terms glossary.setTerms
+        now.glossary.letters glossary.setLetters
+        $('#page').show()
+      when 'reconnected' then showError 'reconnected'
+      else showError 'unknow socket connection status: ' + socketStatus

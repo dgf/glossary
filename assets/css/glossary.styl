@@ -1,21 +1,65 @@
 @import 'nib'
 
-font-size = 14px
-font-type = Arial, sans-serif
-
-body
-  font font-size font-type
-
 .container
   margin-top 2em
 
 header
-footer
-  background-color #A9D0F5
-
-nav
-#detail
-  background-color #A9F5BC
+  background-color white
+  border 3px solid lightblue
+  border-radius 1em
+  padding 0.2em 0.5em
+  text-align center
 
 #content
-  background-color #F7F8E0
+  padding-top 1.5em
+
+h1, h2
+  display inline
+
+// term editing
+.blocked
+  background-color red
+
+.editing
+  background-color yellow
+
+// term title
+dt div
+  float right
+
+dt input
+  font-size 2em
+  width 70%
+
+
+// term definition
+dd
+  margin 0
+
+dd p
+  font-size 1.2em
+
+dd textarea
+  width 47em
+  height 5em
+
+// letter list
+nav
+  padding-top 2em
+
+nav ul
+  list-style none
+  margin 0
+  padding 0
+
+nav ul li
+  text-align center
+  width 2em
+  height 2em
+  border 1px solid black
+  border-radius 1em
+  line-height 2em
+  background-color lightblue
+
+nav ul li + li
+  margin-top 0.3em

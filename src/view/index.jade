@@ -4,56 +4,34 @@ block styles
   != css('glossary')
 
 block scripts
+  script(src='/js/jquery.js')
   script(src='/js/knockout.js')
   script(src='/js/knockout.mapping.js')
   != js('glossary')
 
 block content
-  #page.container
+  #page.container(style='display: none')
 
-    header.span-24
-      h1 Glossary
+    header.span-24.last
+      h1 #{title}
+      button(type='button', data-bind='click: create') Create a term
 
-    nav.span-3
-      h2 letter list
+    .span-4 &nbsp;
+
+    nav.span-1
       ul(data-bind='foreach: letters, visible: letters().length > 0')
-        li(data-bind='text: $data')
+        li
+          a(data-bind='text: letter, attr: { href: url, title: title }')
 
-    #content.span-13
-      h2 term list
+    #content.span-15.last
       dl(data-bind='foreach: terms, visible: terms().length > 0')
-        dt(data-bind='text: title, disable: isDone')
-        dd
-          p(data-bind='text: definition, disable: isDone')
-          input(type='checkbox', data-bind='checked: isDone')
-          span &nbsp;|&nbsp;
-          a(href='#', data-bind='click: $parent.editTerm') Edit
-          span &nbsp;|&nbsp;
-          a(href='#', data-bind='click: $parent.removeTerm') Delete
-
-    #detail.span-8.last
-      #edit
-        h2 edit term
-        form(data-bind='with: chosenTermData, submit: saveTerm')
-          input(type='hidden', data-bind='value: id')
-          label title:
-          input(data-bind='value: title')
-          label definition:
-          input(data-bind='value: definition')
-          button(type='submit') Save
-      #add
-        h2 add term
-        form(data-bind='submit: addTerm')
-          label title:
-          input(data-bind='value: newTermTitle', placeholder='what i am?')
-          label definition:
-          input(data-bind='value: newTermDefinition', placeholder='define me!')
-          button(type='submit') Add
-
-    footer.span-24
-      p
-        span You have &nbsp;
-        strong(data-bind='text: incompleteTerms().length') &nbsp;
-        incomplete terms(s)
-        span(data-bind='visible: incompleteTerms().length == 0')
-        span - it's foo time!
+        dt(data-bind='attr: { id: title }, css: { blocked: isBlocked(), editing: editing() }')
+          h2(data-bind='text: title, visible: !editingTitle(), click: editTitle')
+          input(data-bind='value: title, valueUpdate: "afterkeydown", visible: editingTitle(), hasfocus: editingTitle')
+          div(data-bind='visible: !editing()')
+            button(type='button', data-bind='click: $parent.delete, visible: !isBlocked()') Delete
+            span(data-bind='text: updated')
+        dd(data-bind='css: { blocked: isBlocked(), editing: editing() }')
+          p(data-bind='html: definition, visible: !editingDefinition(), click: editDefinition')
+          textarea(data-bind='value: definition, valueUpdate: "afterkeydown", visible: editingDefinition(), hasfocus: editingDefinition')
+        hr
