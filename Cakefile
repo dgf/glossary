@@ -1,4 +1,3 @@
-fs = require 'fs'
 {print} = require 'util'
 {spawn} = require 'child_process'
 jasmineBinary = './node_modules/jasmine-node/bin/jasmine-node'
@@ -33,12 +32,12 @@ task 'spec', 'run specifications', ->
 task 'setup', 'sync database schema and setup glossary example data', ->
   glossary = require('crudl-app') require('./app.conf'), __dirname
 
-  createTerm = (title, definition, onSuccess) ->
-    term = title: title, definition: definition
-    glossary.db.Term.create term, onSuccess, (error) ->
-      console.error "BARRRRRRRRR"
-      log error, red
+  createTerm = (term, onSuccess) ->
+    glossary.db.Term.create term, onSuccess, (error) -> log error, red
 
-  glossary.db.reset ->
-    createTerm 'Example', 'an example term', ->
-      createTerm 'Another Example', 'a second term', -> log ":)", green
+  createTermList = (terms) ->
+    if terms.length isnt 0
+      [term, residual...] = terms
+      createTerm term, -> createTermList residual
+
+  glossary.db.reset -> createTermList require './fixture'
