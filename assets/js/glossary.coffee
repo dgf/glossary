@@ -60,7 +60,6 @@ class Glossary
     @terms.sort sortTerms
 
   setLetters: (letters) =>
-    console.log 'set letters: ' + letters.join ', '
     @letters.removeAll()
     for letter in letters
       letter.url = '#' + letter.title

@@ -26,6 +26,7 @@ module.exports = (express, everyone, db) ->
         everyone.now.client.update _.extend values,
           id: term.id
           updated: term.updated
+        db.Term.letters everyone.now.client.letters, (error) -> throw error
       termCrudl.update.apply @, [id, values, publishUpdatedTerm]
 
     add: (values, onSuccess) ->

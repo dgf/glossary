@@ -31,13 +31,8 @@ module.exports = (sequelize) ->
       rawQuery unblockTerms, onError, onSuccess
 
     letters: (onSuccess, onError) ->
-      letterList = """
-      SELECT
-        upper(left(title, 1)) AS l,
-        title AS t
-      FROM #{Term.tableName}
-      GROUP BY l
-      """
+      letterList =
+       "SELECT upper(left(title, 1)) AS l, title AS t FROM #{Term.tableName} GROUP BY l"
       rawQuery letterList, onError, (list) ->
         onSuccess ({ letter: letter.l, title: letter.t } for letter in list)
 
