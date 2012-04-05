@@ -19,3 +19,7 @@ see it in action on the project [homepage](http://dgf.github.com/glossary)
     npm start
 
 go to [http://localhost:3000/](http://localhost:3000/)
+
+## Architecture
+
+![glossary architecture](https://github.com/dgf/glossary/raw/master/architecture.png)
