@@ -1,15 +1,20 @@
-# Glossary WebApp - blueprint and test project of the crudl app space
+# Glossary - blueprint and test project of the crudl app space
 
 a [crudl-app](http://github.com/dgf/crudl-app) based glossary implementation
-that supports a simple collaborative term management
+that supports collaborative term management
+
+see it in action on the project [homepage](http://dgf.github.com/glossary)
 
 ## Requirements
 
  * install MySQL, Node.js and npm
- * setup a test database (see app.conf.coffee)
+ * configure and setup database, see
+   [app.conf.coffee](https://github.com/dgf/glossary/raw/master/app.conf.coffee)
 
 ## Startup
 
+
+    npm install
     cake setup
     npm start
 
