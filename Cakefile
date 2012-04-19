@@ -20,14 +20,9 @@ build = (callback) -> call 'coffee', ['-c', '-o', 'lib', 'src'], callback
 
 spec = (callback) -> call jasmineBinary, ['spec', '--coffee'], callback
 
-task 'build', 'build coffee', ->
-  build (status) -> log ":)", green if status is 0
+logSuccess = -> log ":)", green
 
-task 'spec', 'run specifications', ->
-  build (buildStatus) ->
-    if buildStatus is 0
-      spec (testStatus) ->
-        log ":)", green if testStatus is 0
+task 'build', 'build coffee', -> build logSuccess
 
 task 'setup', 'sync database schema and setup glossary example data', ->
   glossary = require('crudl-app') require('./app.conf'), __dirname
@@ -35,8 +30,10 @@ task 'setup', 'sync database schema and setup glossary example data', ->
   createTerm = (term, onSuccess) ->
     glossary.db.Term.create term, onSuccess, (error) -> log error, red
 
-  createTermList = (terms) ->
-    if terms.length isnt 0
+  createTermList = (terms, onSuccess) ->
+    if terms.length is 0
+      logSuccess()
+    else
       [term, residual...] = terms
       createTerm term, -> createTermList residual
 

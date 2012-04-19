@@ -3,7 +3,6 @@ _ = require 'underscore'
 
 # glossary interface
 module.exports = (express, everyone, db) ->
-
   tie = (term) ->
     t = isBlocked: term.isBlocked
     t.title = term.title if term.title
@@ -20,7 +19,8 @@ module.exports = (express, everyone, db) ->
   updateLetters = -> db.Term.letters everyone.now.client.letters, (error) -> throw error
 
   everyone.now.glossary =
-    terms: termCrudl.list
+  #
+    terms: termCrudl.all
 
     save: (id, values, onSuccess) ->
       publishUpdatedTerm = (msg, term) ->
@@ -43,7 +43,7 @@ module.exports = (express, everyone, db) ->
         onSuccess msg
         everyone.now.client.remove id
         updateLetters()
-      termCrudl.delete.apply @, [id, publishDeletedTerm]
+      termCrudl.destroy.apply @, [id, publishDeletedTerm]
 
     letters: (onSuccess) ->
       db.Term.letters onSuccess, (error) -> throw error
